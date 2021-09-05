@@ -19,6 +19,13 @@ ROOT
 
 ```
 
+## download
+
+```bash
+npx degit yeori/svelte-with-scss myprojectname
+cd myprojectname
+```
+
 ## Get started
 
 Install the dependencies...
