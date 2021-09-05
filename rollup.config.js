@@ -3,8 +3,10 @@ import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
+import rollupScss from "rollup-plugin-scss";
 import css from "rollup-plugin-css-only";
 import autoPreprocess from "svelte-preprocess";
+import rollupCopy from "rollup-plugin-copy";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -39,25 +41,41 @@ export default {
     sourcemap: true,
     format: "iife",
     name: "app",
-    file: "public/build/bundle.js",
+    file: "dist/js/app.js",
   },
   plugins: [
+    rollupCopy({
+      targets: [
+        {
+          src: "public/index.html",
+          dest: "dist",
+        },
+        {
+          src: "public/images",
+          dest: "dist",
+        },
+      ],
+    }),
     svelte({
       preprocess: autoPreprocess(),
+      // preprocess: autoPreprocess({
+      //   scss: {
+      //     outputStyle: "compressed",
+      //   },
+      //   sourceMap: true,
+      // }),
       compilerOptions: {
         // enable run-time checks when not in production
         dev: !production,
       },
     }),
-    // we'll extract any component CSS out into
-    // a separate file - better for performance
-    css({ output: "bundle.css" }),
-
-    // If you have external dependencies installed from
-    // npm, you'll most likely need these plugins. In
-    // some cases you'll need additional configuration -
-    // consult the documentation for details:
-    // https://github.com/rollup/plugins/tree/master/packages/commonjs
+    rollupScss({
+      output: "dist/css/app.css",
+      outputStyle: "compressed",
+      outFile: "app.css",
+      sourceMap: "app.css.map",
+    }),
+    // css({ output: "app.css" }),
     resolve({
       browser: true,
       dedupe: ["svelte"],
@@ -70,7 +88,7 @@ export default {
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production && livereload("public"),
+    !production && livereload("dist"),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
